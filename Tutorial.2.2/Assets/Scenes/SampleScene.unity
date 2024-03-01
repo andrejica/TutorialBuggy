@@ -297,8 +297,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wheelColliderFL: {fileID: 740730361}
   wheelColliderFR: {fileID: 2120798701}
+  wheelColliderRL: {fileID: 1098261249}
+  wheelColliderRR: {fileID: 1533291408}
   maxTorque: 500
   maxSteerAngle: 45
+  sidewaysStiffness: 1.5
+  forewardStiffness: 1.5
 --- !u!1 &421881755 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -8274597032198867004, guid: 45a72fbc10aaf65459cc0affc5b4c1b6, type: 3}
