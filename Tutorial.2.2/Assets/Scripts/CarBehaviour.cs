@@ -17,14 +17,28 @@ public class CarBehaviour : MonoBehaviour
     public float maxSpeedBackwardKMH = 30;
     private float _currentSpeedKMH = 0f;
 
+    public GameObject thirdPersonCamera;
+    public GameObject firstPersonCamera;
+    private bool isFirstPerson = false;
+
+    private Rigidbody _rigidBody;
+
     void Start()
     {
+        _rigidBody = GetComponent<Rigidbody>();
         SetWheelFrictionStiffness(forewardStiffness, sidewaysStiffness);
     }
     
     void FixedUpdate ()
-    { 
-        SetMotorTorque(maxTorque * Input.GetAxis("Vertical"));
+    {
+        _currentSpeedKMH = _rigidBody.velocity.magnitude * 3.6f;
+        //TODO Tutorial 2.2.7 Task for checking max speeds
+        if (BuggyMoves())
+        {
+            SetMotorTorque(maxTorque * Input.GetAxis("Vertical"));
+        }
+        Debug.Log($"Buggy speed: {_currentSpeedKMH}");
+        // Debug.Log($"Buggy moves forward: {BuggyMoves()}");
         SetSteerAngle(maxSteerAngle * Input.GetAxis("Horizontal"));
     }
     
@@ -43,7 +57,7 @@ public class CarBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        ChangeBuggyCamera();
     }
     
     void SetWheelFrictionStiffness(float newForwardStiffness, float newSidewaysStiffness)
@@ -60,5 +74,38 @@ public class CarBehaviour : MonoBehaviour
         wheelColliderRL.sidewaysFriction = swWFC;
         wheelColliderRR.forwardFriction = fwWFC;
         wheelColliderRR.sidewaysFriction = swWFC;
+    }
+
+    private void ChangeBuggyCamera()
+    {
+        if (!isFirstPerson && Input.GetKeyDown(KeyCode.K))
+        {
+            firstPersonCamera.SetActive(true);
+            thirdPersonCamera.SetActive(false);
+            isFirstPerson = true;
+        }
+        else if (isFirstPerson && Input.GetKeyDown(KeyCode.K))
+        {
+            firstPersonCamera.SetActive(false);
+            thirdPersonCamera.SetActive(true);
+            isFirstPerson = false;
+        }
+    }
+
+    //TODO Tutorial 2.2.7 Task for checking max speeds
+    private bool BuggyMoves()
+    {
+        Vector3 velocity = _rigidBody.velocity;
+        Vector3 localVel = transform.InverseTransformDirection(velocity);
+
+        switch (localVel.z * Input.GetAxis("Vertical"))
+        {
+            case > 0 when _currentSpeedKMH <= maxSpeedKMH && _currentSpeedKMH > 0:
+                return true;
+            case <= 0 when _currentSpeedKMH <= maxSpeedBackwardKMH && _currentSpeedKMH > 0:
+                return true;
+            default:
+                return false;
+        }
     }
 }
