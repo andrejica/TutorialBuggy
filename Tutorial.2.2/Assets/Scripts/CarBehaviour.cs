@@ -10,6 +10,7 @@ public class CarBehaviour : MonoBehaviour
     public WheelCollider wheelColliderRR;
     public float maxTorque = 500;
     public float maxSteerAngle = 45;
+    private float _testAngle;
     public float sidewaysStiffness = 1.5f;
     public float forewardStiffness = 1.5f;
 
@@ -32,13 +33,26 @@ public class CarBehaviour : MonoBehaviour
     void FixedUpdate ()
     {
         _currentSpeedKMH = _rigidBody.velocity.magnitude * 3.6f;
-        //TODO Tutorial 2.2.7 Task for checking max speeds
-        if (BuggyMoves())
+        
+        //Stop speed increase if goes over MaxForward or MaxBackwards Speed
+        if (BuggyMovesForward() && _currentSpeedKMH <= maxSpeedKMH)
         {
             SetMotorTorque(maxTorque * Input.GetAxis("Vertical"));
         }
-        Debug.Log($"Buggy speed: {_currentSpeedKMH}");
-        // Debug.Log($"Buggy moves forward: {BuggyMoves()}");
+        else if(!BuggyMovesForward() && _currentSpeedKMH <= maxSpeedBackwardKMH)
+        {
+            SetMotorTorque(maxTorque * Input.GetAxis("Vertical"));
+        }
+        else
+        {
+            SetMotorTorque(0);
+        }
+        
+        //TODO calculate angle of wheels according to speed of buggy
+        // var test = 
+        
+        Debug.Log($"Buggy speed in KM/H: {_currentSpeedKMH}");
+        // Debug.Log($"Buggy moves forward: {BuggyMovesForward()}");
         SetSteerAngle(maxSteerAngle * Input.GetAxis("Horizontal"));
     }
     
@@ -93,19 +107,11 @@ public class CarBehaviour : MonoBehaviour
     }
 
     //TODO Tutorial 2.2.7 Task for checking max speeds
-    private bool BuggyMoves()
+    private bool BuggyMovesForward()
     {
         Vector3 velocity = _rigidBody.velocity;
         Vector3 localVel = transform.InverseTransformDirection(velocity);
 
-        switch (localVel.z * Input.GetAxis("Vertical"))
-        {
-            case > 0 when _currentSpeedKMH <= maxSpeedKMH && _currentSpeedKMH > 0:
-                return true;
-            case <= 0 when _currentSpeedKMH <= maxSpeedBackwardKMH && _currentSpeedKMH > 0:
-                return true;
-            default:
-                return false;
-        }
+        return localVel.z > 0;
     }
 }
