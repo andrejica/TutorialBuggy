@@ -1,6 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class CarBehaviour : MonoBehaviour
@@ -12,7 +10,9 @@ public class CarBehaviour : MonoBehaviour
     private float antiRoll = 5000;
     
     public Transform steeringWheel;
-    public float maxSteeringWheelAngle = 89;
+    private float _maxSteeringWheelAngle = 90;
+    private float _steerWheelXPos;
+    private float _steerWheelZPos;
     float maxTorque = 1500;
     public float maxSteerAngle = 45;
     private float _testAngle;
@@ -25,11 +25,76 @@ public class CarBehaviour : MonoBehaviour
 
     public GameObject thirdPersonCamera;
     public GameObject firstPersonCamera;
-    private bool isFirstPerson = false;
+    private bool _isFirstPerson = false;
+
+    public RectTransform speedPointerTransform;
+    public TMP_Text speedText;
+    private float _tachOnZeroSpeedDeg = -34;
+    private float _tachoMaxDeg = -292;
 
     public Transform centerOfMass;
     private Rigidbody _rigidBody;
+    
+    public AudioClip engineSingleRpmSoundClip;
+    private AudioSource _engineAudioSource;
 
+    class Gear
+    {
+        public Gear(float minKMH, float minRPM, float maxKMH, float maxRPM)
+        { _minRPM = minRPM;
+            _minKMH = minKMH;
+            _maxRPM = maxRPM;
+            _maxKMH = maxKMH;
+        }
+        private float _minRPM;
+        private float _minKMH;
+        private float _maxRPM;
+        private float _maxKMH;
+        
+        public bool SpeedFits(float kmh)
+        {
+            return kmh >= _minKMH && kmh <= _maxKMH;
+        }
+        
+        public float Interpolate(float kmh)
+        {
+            float currentRpm;
+            
+            if (SpeedFits(kmh))
+            {
+                 currentRpm = (1 - kmh / _maxKMH) * _maxRPM;
+
+                 if (currentRpm > _minRPM)
+                 {
+                     return currentRpm;
+                 }
+            }
+            
+            return _minRPM;
+        }
+    }
+    
+    float KmhToRpm(float kmh, out int gearNum)
+    {
+        Gear[] gears =
+        { new Gear( 1, 900, 12, 1400),
+            new Gear( 12, 900, 25, 2000),
+            new Gear( 25, 1350, 45, 2500),
+            new Gear( 45, 1950, 70, 3500),
+            new Gear( 70, 2500, 112, 4000),
+            new Gear(112, 3100, 180, 5000)
+        };
+        
+        for (int i=0; i< gears.Length; ++i)
+        { if (gears[i].SpeedFits(kmh))
+            { gearNum = i + 1;
+                return gears[i].Interpolate(kmh);
+            }
+        }
+        gearNum = 1;
+        return 800;
+    }
+    
     void Start()
     {
         _rigidBody = GetComponent<Rigidbody>();
@@ -38,6 +103,18 @@ public class CarBehaviour : MonoBehaviour
             localPositionCenterOfMass.y,
             localPositionCenterOfMass.z);
         SetWheelFrictionStiffness(forewardStiffness, sidewaysStiffness);
+        
+        _steerWheelXPos = steeringWheel.rotation.eulerAngles.x;
+        _steerWheelZPos = steeringWheel.rotation.eulerAngles.z;
+        
+        // Configure AudioSource component by program
+        _engineAudioSource = gameObject.AddComponent<AudioSource>();
+        _engineAudioSource.clip = engineSingleRpmSoundClip;
+        _engineAudioSource.loop = true;
+        _engineAudioSource.volume = 0.7f;
+        _engineAudioSource.playOnAwake = true;
+        _engineAudioSource.enabled = false; // Bugfix
+        _engineAudioSource.enabled = true; // Bugfix
     }
     
     void FixedUpdate ()
@@ -45,18 +122,55 @@ public class CarBehaviour : MonoBehaviour
         _currentSpeedKMH = _rigidBody.velocity.magnitude * 3.6f;
 
         StabilizeCar();
-
-        //TODO somehow the car turns slightly when driving ca. 150 KM/H and slides afterwards... why?
+        
         //Correct angles of both front wheel according to current speed
-        var steerAngleCorrection = 1 - _currentSpeedKMH / maxSpeedKMH;
-        SetSteerAngle(steerAngleCorrection * maxSteerAngle * Input.GetAxis("Horizontal"));
+        float steerAngleCorrection = (1 - _currentSpeedKMH / (maxSpeedKMH * 1.15f)) * maxSteerAngle;
+        SetSteerAngle(steerAngleCorrection * Input.GetAxis("Horizontal"));
 
         BrakeBuggy();
         
         LimitToMaxSpeedBoundaries();
         
-        Debug.Log($"Buggy speed in KM/H: {_currentSpeedKMH}");
+        // Debug.Log($"Buggy speed in KM/H: {_currentSpeedKMH}");
         // Debug.Log($"Buggy moves forward: {BuggyMovesForward()}");
+        
+        int gearNum = 0;
+        float engineRPM = KmhToRpm(_currentSpeedKMH, out gearNum);
+        SetEngineSound(engineRPM);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        ChangeBuggyCamera();
+
+        float degAroundY = 0;
+        // float test1 = steeringWheel.rotation.eulerAngles.x;
+        // float test2 = steeringWheel.rotation.eulerAngles.z;
+        //TODO let rotation work correctly for steering wheel...
+        if (_currentSpeedKMH > 0)
+        {
+            degAroundY += _maxSteeringWheelAngle * Input.GetAxis("Horizontal");
+        }
+        // steeringWheel.SetLocalPositionAndRotation(Vector3.up, Quaternion.Euler(_steerWheelXPos,degAroundY, _steerWheelZPos));
+        //); = Quaternion.Euler(_steerWheelXPos,degAroundY, _steerWheelZPos);
+        steeringWheel.Rotate(Vector3.up, degAroundY);
+    }
+    
+    void OnGUI()
+    {
+        
+        float degAroundZ = _tachOnZeroSpeedDeg;
+        // Speed pointer rotation
+        if (_currentSpeedKMH > 0)
+        {
+            degAroundZ += _tachoMaxDeg * (_currentSpeedKMH / maxSpeedKMH);
+        }
+  
+        speedPointerTransform.rotation = Quaternion.Euler(0,0, degAroundZ); 
+        
+        //SpeedText show current KMH
+        speedText.text = _currentSpeedKMH.ToString("0") + " km/h";
     }
     
     void SetSteerAngle(float angle)
@@ -69,13 +183,6 @@ public class CarBehaviour : MonoBehaviour
     { 
         wheelColliderFL.motorTorque = amount;
         wheelColliderFR.motorTorque = amount;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        ChangeBuggyCamera();
-        steeringWheel.transform.Rotate(0f, maxSteeringWheelAngle * Input.GetAxis("Horizontal"), 0f);
     }
     
     void SetWheelFrictionStiffness(float newForwardStiffness, float newSidewaysStiffness)
@@ -93,23 +200,35 @@ public class CarBehaviour : MonoBehaviour
         wheelColliderRR.forwardFriction = fwWFC;
         wheelColliderRR.sidewaysFriction = swWFC;
     }
+    
+    void SetEngineSound(float engineRpm)
+    {
+        if (ReferenceEquals(_engineAudioSource, null)) return;
+        float minRPM = 800;
+        float maxRPM = 8000;
+        float minPitch = 0.3f;
+        float maxPitch = 3.0f;
+
+        float pitch = engineRpm / maxRPM * maxPitch;
+        _engineAudioSource.pitch = pitch;
+    }
 
     /// <summary>
     /// toggles Buggy camera between third-person-view and first-person-view
     /// </summary>
     private void ChangeBuggyCamera()
     {
-        if (!isFirstPerson && Input.GetKeyDown(KeyCode.K))
+        if (!_isFirstPerson && Input.GetKeyDown(KeyCode.K))
         {
             firstPersonCamera.SetActive(true);
             thirdPersonCamera.SetActive(false);
-            isFirstPerson = true;
+            _isFirstPerson = true;
         }
-        else if (isFirstPerson && Input.GetKeyDown(KeyCode.K))
+        else if (_isFirstPerson && Input.GetKeyDown(KeyCode.K))
         {
             firstPersonCamera.SetActive(false);
             thirdPersonCamera.SetActive(true);
-            isFirstPerson = false;
+            _isFirstPerson = false;
         }
     }
 
