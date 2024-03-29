@@ -37,6 +37,8 @@ public class CarBehaviour : MonoBehaviour
     
     public AudioClip engineSingleRpmSoundClip;
     private AudioSource _engineAudioSource;
+    private FMODUnity.StudioEventEmitter _engineEventEmitter;
+    public bool useFMODEngineSound = true;
 
     class Gear
     {
@@ -60,15 +62,13 @@ public class CarBehaviour : MonoBehaviour
         {
             float currentRpm;
             
-            if (SpeedFits(kmh))
-            {
-                 currentRpm = (1 - kmh / _maxKMH) * _maxRPM;
+             currentRpm = kmh / _maxKMH * _maxRPM;
+             // Debug.Log($"current RPM calculated & Speed: RPM {currentRpm} / Speed {kmh}");
 
-                 if (currentRpm > _minRPM)
-                 {
-                     return currentRpm;
-                 }
-            }
+             if (currentRpm > _minRPM)
+             {
+                 return currentRpm;
+             }
             
             return _minRPM;
         }
@@ -107,14 +107,23 @@ public class CarBehaviour : MonoBehaviour
         _steerWheelXPos = steeringWheel.rotation.eulerAngles.x;
         _steerWheelZPos = steeringWheel.rotation.eulerAngles.z;
         
-        // Configure AudioSource component by program
-        _engineAudioSource = gameObject.AddComponent<AudioSource>();
-        _engineAudioSource.clip = engineSingleRpmSoundClip;
-        _engineAudioSource.loop = true;
-        _engineAudioSource.volume = 0.7f;
-        _engineAudioSource.playOnAwake = true;
-        _engineAudioSource.enabled = false; // Bugfix
-        _engineAudioSource.enabled = true; // Bugfix
+        if (useFMODEngineSound)
+        { 
+            // Setup FMOD event emitter
+            _engineEventEmitter=GetComponent<FMODUnity.StudioEventEmitter>();
+            _engineEventEmitter.Play();
+        }
+        else
+        {
+            // Configure AudioSource component by program
+            _engineAudioSource = gameObject.AddComponent<AudioSource>();
+            _engineAudioSource.clip = engineSingleRpmSoundClip;
+            _engineAudioSource.loop = true;
+            _engineAudioSource.volume = 0.7f;
+            _engineAudioSource.playOnAwake = true;
+            _engineAudioSource.enabled = false; // Bugfix
+            _engineAudioSource.enabled = true; // Bugfix
+        }
     }
     
     void FixedUpdate ()
@@ -136,6 +145,7 @@ public class CarBehaviour : MonoBehaviour
         
         int gearNum = 0;
         float engineRPM = KmhToRpm(_currentSpeedKMH, out gearNum);
+        // Debug.Log($"current gearNum / RPM / Speed: gearNum {gearNum} / RPM {engineRPM} / Speed {_currentSpeedKMH}");
         SetEngineSound(engineRPM);
     }
 
@@ -203,14 +213,22 @@ public class CarBehaviour : MonoBehaviour
     
     void SetEngineSound(float engineRpm)
     {
-        if (ReferenceEquals(_engineAudioSource, null)) return;
-        float minRPM = 800;
-        float maxRPM = 8000;
-        float minPitch = 0.3f;
-        float maxPitch = 3.0f;
+        if (useFMODEngineSound)
+        {
+            _engineEventEmitter.SetParameter("RPM", engineRpm); 
+        }
+        else
+        {
+            if (ReferenceEquals(_engineAudioSource, null)) return;
+            float minRPM = 800;
+            float maxRPM = 8000;
+            float minPitch = 0.3f;
+            float maxPitch = 3.0f;
 
-        float pitch = engineRpm / maxRPM * maxPitch;
-        _engineAudioSource.pitch = pitch;
+            float pitch = engineRpm / maxRPM * maxPitch;
+
+            _engineAudioSource.pitch = pitch;
+        }
     }
 
     /// <summary>
