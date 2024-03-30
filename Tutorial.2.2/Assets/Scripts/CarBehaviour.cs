@@ -39,6 +39,11 @@ public class CarBehaviour : MonoBehaviour
     private AudioSource _engineAudioSource;
     private FMODUnity.StudioEventEmitter _engineEventEmitter;
     public bool useFMODEngineSound = true;
+    
+    public ParticleSystem smokeL;
+    public ParticleSystem smokeR;
+    private ParticleSystem.EmissionModule _smokeLEmission;
+    private ParticleSystem.EmissionModule _smokeREmission;
 
     class Gear
     {
@@ -110,7 +115,7 @@ public class CarBehaviour : MonoBehaviour
         if (useFMODEngineSound)
         { 
             // Setup FMOD event emitter
-            _engineEventEmitter=GetComponent<FMODUnity.StudioEventEmitter>();
+            _engineEventEmitter = GetComponent<FMODUnity.StudioEventEmitter>();
             _engineEventEmitter.Play();
         }
         else
@@ -124,11 +129,22 @@ public class CarBehaviour : MonoBehaviour
             _engineAudioSource.enabled = false; // Bugfix
             _engineAudioSource.enabled = true; // Bugfix
         }
+        
+        _smokeLEmission = smokeL.emission;
+        _smokeREmission = smokeR.emission;
+        _smokeLEmission.enabled = true;
+        _smokeREmission.enabled = true;
     }
     
     void FixedUpdate ()
     {
         _currentSpeedKMH = _rigidBody.velocity.magnitude * 3.6f;
+        
+        //TODO figure out what to do with missing variables...
+        // Evaluate ground under front wheels
+        // WheelHit hitFL = GetGroundInfos(ref wheelFL, ref _groundTagFL, ref _groundTextureFL);
+        // WheelHit hitFR = GetGroundInfos(ref wheelFR, ref _groundTagFR, ref _groundTextureFR);
+        // _carIsOnDrySand = _groundTagFL.CompareTo("Terrain")==0 && _groundTextureFL==1;
 
         StabilizeCar();
         
@@ -144,9 +160,11 @@ public class CarBehaviour : MonoBehaviour
         // Debug.Log($"Buggy moves forward: {BuggyMovesForward()}");
         
         int gearNum = 0;
-        float engineRPM = KmhToRpm(_currentSpeedKMH, out gearNum);
+        float engineRpm = KmhToRpm(_currentSpeedKMH, out gearNum);
         // Debug.Log($"current gearNum / RPM / Speed: gearNum {gearNum} / RPM {engineRPM} / Speed {_currentSpeedKMH}");
-        SetEngineSound(engineRPM);
+        SetEngineSound(engineRpm);
+        
+        SetParticleSystems(engineRpm);
     }
 
     // Update is called once per frame
@@ -229,6 +247,46 @@ public class CarBehaviour : MonoBehaviour
 
             _engineAudioSource.pitch = pitch;
         }
+    }
+    
+    void SetParticleSystems(float engineRpm)
+    { 
+        float smokeRate = engineRpm / 10.0f;
+        _smokeLEmission.rateOverDistance = new ParticleSystem.MinMaxCurve(smokeRate);
+        _smokeREmission.rateOverDistance = new ParticleSystem.MinMaxCurve(smokeRate);
+        
+        //TODO figure out what to do with missing variables...
+        // Set wheels dust
+        float dustRate = 0;
+        // if (_currentSpeedKMH > 10.0f && _carIsOnDrySand){ dustRate = _currentSpeedKMH; }
+        // //Debug.Log(dustRate);
+        // _dustFLEmission.rateOverDistance = new ParticleSystem.MinMaxCurve(dustRate);
+        // _dustFREmission.rateOverDistance = new ParticleSystem.MinMaxCurve(dustRate);
+        // _dustRLEmission.rateOverDistance = new ParticleSystem.MinMaxCurve(dustRate);
+        // _dustRREmission.rateOverDistance = new ParticleSystem.MinMaxCurve(dustRate);
+    }
+    
+    WheelHit GetGroundInfos(ref WheelCollider wheelCol, ref string groundTag, ref int groundTextureIndex)
+    { 
+        // Default values
+        groundTag = "InTheAir";
+        groundTextureIndex = -1;
+        
+        // Query ground by ray shoot on the front left wheel collider
+        WheelHit wheelHit;
+        wheelCol.GetGroundHit(out wheelHit);
+        
+        // If not in the air query collider
+        if (wheelHit.collider)
+        { 
+            groundTag = wheelHit.collider.tag;
+            if (wheelHit.collider.CompareTag("Terrain"))
+            {
+                groundTextureIndex = TerrainSurface.GetMainTexture(transform.position);
+            }
+        }
+        
+        return wheelHit;
     }
 
     /// <summary>
