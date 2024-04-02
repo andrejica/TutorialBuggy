@@ -42,8 +42,23 @@ public class CarBehaviour : MonoBehaviour
     
     public ParticleSystem smokeL;
     public ParticleSystem smokeR;
+    public ParticleSystem dustFL;
+    // public ParticleSystem dustFR;
+    // public ParticleSystem dustRL;
+    // public ParticleSystem dustRR;
     private ParticleSystem.EmissionModule _smokeLEmission;
     private ParticleSystem.EmissionModule _smokeREmission;
+    private ParticleSystem.EmissionModule _dustFLEmission;
+    private ParticleSystem.EmissionModule _dustFREmission;
+    private ParticleSystem.EmissionModule _dustRLEmission;
+    private ParticleSystem.EmissionModule _dustRREmission;
+    
+
+    private bool _carIsOnDrySand;
+    private string _groundTagFL;
+    private string _groundTagFR;
+    private int _groundTextureFL;
+    private int _groundTextureFR;
 
     class Gear
     {
@@ -134,17 +149,21 @@ public class CarBehaviour : MonoBehaviour
         _smokeREmission = smokeR.emission;
         _smokeLEmission.enabled = true;
         _smokeREmission.enabled = true;
+
+        _dustFLEmission = dustFL.emission;
+        // _dustFREmission = dustFR.emission;
+        // _dustRLEmission = dustRL.emission;
+        // _dustRREmission = dustRR.emission;
     }
     
     void FixedUpdate ()
     {
         _currentSpeedKMH = _rigidBody.velocity.magnitude * 3.6f;
         
-        //TODO figure out what to do with missing variables...
         // Evaluate ground under front wheels
-        // WheelHit hitFL = GetGroundInfos(ref wheelFL, ref _groundTagFL, ref _groundTextureFL);
-        // WheelHit hitFR = GetGroundInfos(ref wheelFR, ref _groundTagFR, ref _groundTextureFR);
-        // _carIsOnDrySand = _groundTagFL.CompareTo("Terrain")==0 && _groundTextureFL==1;
+        WheelHit hitFL = GetGroundInfos(ref wheelColliderFL, ref _groundTagFL, ref _groundTextureFL);
+        WheelHit hitFR = GetGroundInfos(ref wheelColliderFR, ref _groundTagFR, ref _groundTextureFR);
+        _carIsOnDrySand = _groundTagFL.CompareTo("Terrain")==0 && _groundTextureFL==0;
 
         StabilizeCar();
         
@@ -255,12 +274,12 @@ public class CarBehaviour : MonoBehaviour
         _smokeLEmission.rateOverDistance = new ParticleSystem.MinMaxCurve(smokeRate);
         _smokeREmission.rateOverDistance = new ParticleSystem.MinMaxCurve(smokeRate);
         
-        //TODO figure out what to do with missing variables...
+        //TODO Why not correctly displaying dust in game?
         // Set wheels dust
         float dustRate = 0;
-        // if (_currentSpeedKMH > 10.0f && _carIsOnDrySand){ dustRate = _currentSpeedKMH; }
-        // //Debug.Log(dustRate);
-        // _dustFLEmission.rateOverDistance = new ParticleSystem.MinMaxCurve(dustRate);
+        if (_currentSpeedKMH > 10.0f && _carIsOnDrySand){ dustRate = _currentSpeedKMH; }
+        Debug.Log(dustRate);
+        _dustFLEmission.rateOverDistance = new ParticleSystem.MinMaxCurve(dustRate);
         // _dustFREmission.rateOverDistance = new ParticleSystem.MinMaxCurve(dustRate);
         // _dustRLEmission.rateOverDistance = new ParticleSystem.MinMaxCurve(dustRate);
         // _dustRREmission.rateOverDistance = new ParticleSystem.MinMaxCurve(dustRate);
@@ -285,6 +304,8 @@ public class CarBehaviour : MonoBehaviour
                 groundTextureIndex = TerrainSurface.GetMainTexture(transform.position);
             }
         }
+
+        Debug.Log($"WheelHit Tag: {groundTag}");
         
         return wheelHit;
     }
