@@ -43,9 +43,13 @@ public class CarBehaviour : MonoBehaviour
     public ParticleSystem smokeL;
     public ParticleSystem smokeR;
     public ParticleSystem dustFL;
-    // public ParticleSystem dustFR;
-    // public ParticleSystem dustRL;
-    // public ParticleSystem dustRR;
+    public ParticleSystem dustFR;
+    public ParticleSystem dustRL;
+    public ParticleSystem dustRR;
+    private Transform _dustFlTransform;
+    private Transform _dustFrTransform;
+    private Transform _dustRlTransform;
+    private Transform _dustRrTransform;
     private ParticleSystem.EmissionModule _smokeLEmission;
     private ParticleSystem.EmissionModule _smokeREmission;
     private ParticleSystem.EmissionModule _dustFLEmission;
@@ -150,10 +154,15 @@ public class CarBehaviour : MonoBehaviour
         _smokeLEmission.enabled = true;
         _smokeREmission.enabled = true;
 
+        _dustFlTransform = dustFL.transform;
+        _dustFrTransform = dustFR.transform;
+        _dustRlTransform = dustRL.transform;
+        _dustRrTransform = dustRR.transform;
+
         _dustFLEmission = dustFL.emission;
-        // _dustFREmission = dustFR.emission;
-        // _dustRLEmission = dustRL.emission;
-        // _dustRREmission = dustRR.emission;
+        _dustFREmission = dustFR.emission;
+        _dustRLEmission = dustRL.emission;
+        _dustRREmission = dustRR.emission;
     }
     
     void FixedUpdate ()
@@ -185,7 +194,7 @@ public class CarBehaviour : MonoBehaviour
         // Debug.Log($"current gearNum / RPM / Speed: gearNum {gearNum} / RPM {engineRPM} / Speed {_currentSpeedKMH}");
         SetEngineSound(engineRpm);
         
-        Debug.Log(hitFL.collider.tag);
+        // Debug.Log(hitFL.collider.tag);
         SetParticleSystems(engineRpm);
     }
 
@@ -276,17 +285,20 @@ public class CarBehaviour : MonoBehaviour
         float smokeRate = engineRpm / 50.0f;
         _smokeLEmission.rateOverDistance = new ParticleSystem.MinMaxCurve(smokeRate);
         _smokeREmission.rateOverDistance = new ParticleSystem.MinMaxCurve(smokeRate);
+
+        //Let dust particles come from front of tires when driving backwards.
+        ChangeDustParticleDirection();
         
-        //TODO Why not correctly displaying dust in game?
+        //TODO Check for correct "Max Particle" in particle systemmodule...
         // Set wheels dust
         float dustRate = 0;
-        if (_currentSpeedKMH > 10.0f && _carIsOnDrySand){ dustRate = _currentSpeedKMH; }
+        if (_currentSpeedKMH > 10.0f && _carIsOnDrySand) { dustRate = _currentSpeedKMH; }
+
         // Debug.Log(dustRate);
         _dustFLEmission.rateOverDistance = new ParticleSystem.MinMaxCurve(dustRate);
-        // _dustFREmission.rateOverDistance = new ParticleSystem.MinMaxCurve(dustRate);
-        // _dustRLEmission.rateOverDistance = new ParticleSystem.MinMaxCurve(dustRate);
-        // _dustRREmission.rateOverDistance = new ParticleSystem.MinMaxCurve(dustRate);
-        // Debug.Log(_dustFLEmission.rateOverDistance.constant);
+        _dustFREmission.rateOverDistance = new ParticleSystem.MinMaxCurve(dustRate);
+        _dustRLEmission.rateOverDistance = new ParticleSystem.MinMaxCurve(dustRate);
+        _dustRREmission.rateOverDistance = new ParticleSystem.MinMaxCurve(dustRate);
     }
     
     WheelHit GetGroundInfos(ref WheelCollider wheelCol, ref string groundTag, ref int groundTextureIndex)
@@ -420,6 +432,42 @@ public class CarBehaviour : MonoBehaviour
             wheelColliderRR.brakeTorque = 0;
             wheelColliderFL.motorTorque = maxTorque * Input.GetAxis("Vertical");
             wheelColliderFR.motorTorque = wheelColliderFL.motorTorque;
+        }
+    }
+    
+    private void ChangeDustParticleDirection()
+    {
+        Quaternion directionFrontTires = Quaternion.Euler(new Vector3(0f, 0f, -90));
+        Quaternion directionBehindTires = Quaternion.Euler(new Vector3(-180f, 0f, -90));
+        
+        //When driving backwards change direction on X-Axis for +180 degrees and position in front of tires
+        if (!BuggyMovesForward())
+        {
+            _dustFlTransform.localRotation = directionFrontTires;
+            // _dustFlTransform.localPosition = new Vector3(0.05f, -0.446f, 0.2f);
+            _dustFrTransform.localRotation = directionFrontTires;
+            // _dustFrTransform.localPosition = new Vector3(1.75f, -0.319f, 3.2f);
+            
+            _dustRlTransform.localRotation = directionFrontTires;
+            // _dustRlTransform.localPosition = new Vector3(0.05f, -0.357f, 0.3f);
+            
+            _dustRrTransform.localRotation = directionFrontTires;
+            // _dustRrTransform.localPosition = new Vector3(1.75f, -0.357f, 0.3f);
+        }
+        //Change direction back to initial values if driving forwards
+        else
+        {
+            _dustFlTransform.localRotation = directionBehindTires;
+            // _dustFlTransform.localPosition = new Vector3(0.05f, -0.446f, -0.4f);
+
+            _dustFrTransform.localRotation = directionBehindTires;
+            // _dustFrTransform.localPosition = new Vector3(1.75f, -0.319f, 2.62f);
+            
+            _dustRlTransform.localRotation = directionBehindTires;
+            // _dustRlTransform.localPosition = new Vector3(0.05f, -0.357f, -0.215f);
+            
+            _dustRrTransform.localRotation = directionBehindTires;
+            // _dustRrTransform.localPosition = new Vector3(1.75f, -0.357f, 0.3f);
         }
     }
 }
