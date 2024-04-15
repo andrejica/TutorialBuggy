@@ -31,6 +31,7 @@ public class CarBehaviour : MonoBehaviour
     public TMP_Text speedText;
     private float _tachOnZeroSpeedDeg = -34;
     private float _tachoMaxDeg = -292;
+    
 
     public Transform centerOfMass;
     private Rigidbody _rigidBody;
@@ -63,6 +64,8 @@ public class CarBehaviour : MonoBehaviour
     private string _groundTagFR;
     private int _groundTextureFL;
     private int _groundTextureFR;
+
+    public bool thrustEnabled = false;
 
     class Gear
     {
