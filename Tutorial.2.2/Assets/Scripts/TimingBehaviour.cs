@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -6,8 +8,11 @@ public class TimingBehaviour : MonoBehaviour
 {
     public int countMax = 3;
     private int _countDown;
+    public AudioClip countDownAudioClip;
+    private AudioSource _countDownAudioSource;
     public TMP_Text timeText;
-    
+
+    private Dictionary<string, float> _timeOfCheckpoints = new();
     private float _pastTime = 0;
     private bool _isFinished = false;
     private bool _isStarted = false;
@@ -19,6 +24,9 @@ public class TimingBehaviour : MonoBehaviour
     {
         _carScript = GameObject.Find("Buggy").GetComponent<CarBehaviour>();
         _carScript.thrustEnabled = false;
+
+        _countDownAudioSource = gameObject.AddComponent<AudioSource>();
+        _countDownAudioSource.clip = countDownAudioClip;
         
         print("Begin Start:" + Time.time);
         StartCoroutine(GameStart());
@@ -30,36 +38,74 @@ public class TimingBehaviour : MonoBehaviour
     { 
         print(" Begin GameStart:" + Time.time);
         for(_countDown = countMax; _countDown > 0; _countDown--)
-        { 
+        {
             yield return new WaitForSeconds(1);
+            
+            _countDownAudioSource.Play();
             print(" WaitForSeconds:" + Time.time);
         }
         
+        //Play final countdown with higher pitch
+        _countDownAudioSource.pitch = 1.5f;
+        _countDownAudioSource.Play();
         print(" End GameStart:" + Time.time);
 
         _carScript.thrustEnabled = true;
     }
     
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.tag == "Car")
-        { if (!_isStarted)
-                _isStarted = true;
-            else _isFinished = true;
-        }
-    }
-    
     void OnGUI ()
     {
-        //TODO correct time measure start... (2.6)
-        //TODO peep sound before race start.
         if (_carScript.thrustEnabled)
         {
             if (_isStarted && !_isFinished)
                 _pastTime += Time.deltaTime;
             timeText.text = _pastTime.ToString("0.0") + " sec.";
         }
-        else
-            timeText.text = _countDown.ToString("0.0") + " sec.";
+        else { timeText.text = _countDown.ToString("0.0") + " sec."; }
+
+        if (_isFinished)
+        {
+            var test = _timeOfCheckpoints.Values.ToList();
+            var test2 = _timeOfCheckpoints.Keys.ToList();
+            Debug.Log($"Time of race: {_pastTime}");
+            Debug.Log($"Time of Checkpoint-1: {test2[0]} with {test[0]}");
+            Debug.Log($"Time of Checkpoint-2: {test2[1]} with {test[1]}");
+        }
+    }
+
+    public void SaveTimeOnCheckpointPassed(GameObject checkPoint)
+    {
+        //TODO get correct number for passed checkpoint (1, 2...)
+        var cpNumber = checkPoint.name.Where(char.IsDigit).ToString();
+        // var test3 = checkPoint.parent
+        var cpName = "CP" + cpNumber;
+        _timeOfCheckpoints.Add(cpName, _pastTime);
+    }
+
+    /// <summary>
+    /// Set the isStarted flag to ture or false according to given boolean value
+    /// </summary>
+    /// <param name="isStarted">If true value is set to true if false the value is set to false</param>
+    public void StartTimer(bool isStarted)
+    {
+        _isStarted = isStarted;
+    }
+
+    /// <summary>
+    /// Gets the isStarted value
+    /// </summary>
+    /// <returns>true or false</returns>
+    public bool GetIsStarted()
+    {
+        return _isStarted;
+    }
+
+    /// <summary>
+    /// Set isFinished flag to true or false according to given boolean value
+    /// </summary>
+    /// <param name="isFinished">If true value is set to true if false the value is set to false</param>
+    public void FinishRace(bool isFinished)
+    {
+        _isFinished = isFinished;
     }
 }

@@ -7,6 +7,9 @@ TagManager:
   - Fire
   - Terrain
   - Car
+  - StartCheckpoint
+  - Checkpoint
+  - FinishCheckpoint
   layers:
   - Default
   - TransparentFX

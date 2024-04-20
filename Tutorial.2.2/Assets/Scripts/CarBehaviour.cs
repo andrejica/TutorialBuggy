@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -7,7 +9,7 @@ public class CarBehaviour : MonoBehaviour
     public WheelCollider wheelColliderFR;
     public WheelCollider wheelColliderRL;
     public WheelCollider wheelColliderRR;
-    private float antiRoll = 5000;
+    private readonly float _antiRoll = 5000;
     
     public Transform steeringWheel;
     private float _maxSteeringWheelAngle = 90;
@@ -31,7 +33,10 @@ public class CarBehaviour : MonoBehaviour
     public TMP_Text speedText;
     private float _tachOnZeroSpeedDeg = -34;
     private float _tachoMaxDeg = -292;
-    
+
+    private TimingBehaviour _timerScript;
+    private List<GameObject> _checkPoints;
+    private int _passedCheckpoints = 0;
 
     public Transform centerOfMass;
     private Rigidbody _rigidBody;
@@ -65,7 +70,7 @@ public class CarBehaviour : MonoBehaviour
     private int _groundTextureFL;
     private int _groundTextureFR;
 
-    public bool thrustEnabled = false;
+    public bool thrustEnabled;
 
     class Gear
     {
@@ -166,6 +171,9 @@ public class CarBehaviour : MonoBehaviour
         _dustFREmission = dustFR.emission;
         _dustRLEmission = dustRL.emission;
         _dustRREmission = dustRR.emission;
+
+        _checkPoints = GameObject.FindGameObjectsWithTag("Checkpoint").ToList();
+        _timerScript = GameObject.FindGameObjectWithTag("StartCheckpoint").GetComponent<TimingBehaviour>();
     }
     
     void FixedUpdate ()
@@ -217,6 +225,29 @@ public class CarBehaviour : MonoBehaviour
         // steeringWheel.SetLocalPositionAndRotation(Vector3.up, Quaternion.Euler(_steerWheelXPos,degAroundY, _steerWheelZPos));
         //); = Quaternion.Euler(_steerWheelXPos,degAroundY, _steerWheelZPos);
         steeringWheel.Rotate(Vector3.up, degAroundY);
+    }
+    
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("StartCheckpoint"))
+        { 
+            if (!_timerScript.GetIsStarted()) { _timerScript.StartTimer(true); }
+        }
+        else if (other.gameObject.CompareTag("Checkpoint"))
+        {
+            _passedCheckpoints += 1;
+            GameObject checkPoint;
+            (checkPoint = other.gameObject).SetActive(false);
+            _timerScript.SaveTimeOnCheckpointPassed(checkPoint);
+        }
+        else if (other.gameObject.CompareTag("FinishCheckpoint"))
+        {
+            if (_timerScript.GetIsStarted() && _passedCheckpoints == _checkPoints.Count)
+            {
+                _timerScript.StartTimer(false);
+                _timerScript.FinishRace(true);
+            }
+        }
     }
     
     void OnGUI()
@@ -292,7 +323,6 @@ public class CarBehaviour : MonoBehaviour
         //Let dust particles come from front of tires when driving backwards.
         ChangeDustParticleDirection();
         
-        //TODO Check for correct "Max Particle" in particle systemmodule...
         // Set wheels dust
         float dustRate = 0;
         if (_currentSpeedKMH > 10.0f && _carIsOnDrySand) { dustRate = _currentSpeedKMH; }
@@ -351,8 +381,13 @@ public class CarBehaviour : MonoBehaviour
     /// </summary>
     private void LimitToMaxSpeedBoundaries()
     {
+        //Disable movement before count down
+        if (!thrustEnabled)
+        {
+            SetMotorTorque(0);
+        }
         //Stop speed increase if goes over MaxForward or MaxBackwards Speed
-        if (BuggyMovesForward() && _currentSpeedKMH <= maxSpeedKMH)
+        else if (BuggyMovesForward() && _currentSpeedKMH <= maxSpeedKMH)
         {
             SetMotorTorque(maxTorque * Input.GetAxis("Vertical"));
         }
@@ -391,7 +426,7 @@ public class CarBehaviour : MonoBehaviour
         if (groundedR)
             travelR = (-wheelColliderFR.transform.InverseTransformPoint(hitFr.point).y - wheelColliderFR.radius) / wheelColliderFR.suspensionDistance;
  
-        var antiRollForce = (travelL - travelR) * antiRoll;
+        var antiRollForce = (travelL - travelR) * _antiRoll;
  
         if (groundedL)
         {
@@ -447,30 +482,17 @@ public class CarBehaviour : MonoBehaviour
         if (!BuggyMovesForward())
         {
             _dustFlTransform.localRotation = directionFrontTires;
-            // _dustFlTransform.localPosition = new Vector3(0.05f, -0.446f, 0.2f);
             _dustFrTransform.localRotation = directionFrontTires;
-            // _dustFrTransform.localPosition = new Vector3(1.75f, -0.319f, 3.2f);
-            
             _dustRlTransform.localRotation = directionFrontTires;
-            // _dustRlTransform.localPosition = new Vector3(0.05f, -0.357f, 0.3f);
-            
             _dustRrTransform.localRotation = directionFrontTires;
-            // _dustRrTransform.localPosition = new Vector3(1.75f, -0.357f, 0.3f);
         }
         //Change direction back to initial values if driving forwards
         else
         {
             _dustFlTransform.localRotation = directionBehindTires;
-            // _dustFlTransform.localPosition = new Vector3(0.05f, -0.446f, -0.4f);
-
             _dustFrTransform.localRotation = directionBehindTires;
-            // _dustFrTransform.localPosition = new Vector3(1.75f, -0.319f, 2.62f);
-            
             _dustRlTransform.localRotation = directionBehindTires;
-            // _dustRlTransform.localPosition = new Vector3(0.05f, -0.357f, -0.215f);
-            
             _dustRrTransform.localRotation = directionBehindTires;
-            // _dustRrTransform.localPosition = new Vector3(1.75f, -0.357f, 0.3f);
         }
     }
 }
