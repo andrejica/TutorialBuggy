@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 
@@ -65,21 +66,26 @@ public class TimingBehaviour : MonoBehaviour
 
         if (_isFinished)
         {
-            var test = _timeOfCheckpoints.Values.ToList();
-            var test2 = _timeOfCheckpoints.Keys.ToList();
-            Debug.Log($"Time of race: {_pastTime}");
-            Debug.Log($"Time of Checkpoint-1: {test2[0]} with {test[0]}");
-            Debug.Log($"Time of Checkpoint-2: {test2[1]} with {test[1]}");
+            _carScript.thrustEnabled = false;
         }
     }
 
     public void SaveTimeOnCheckpointPassed(GameObject checkPoint)
     {
-        //TODO get correct number for passed checkpoint (1, 2...)
-        var cpNumber = checkPoint.name.Where(char.IsDigit).ToString();
-        // var test3 = checkPoint.parent
-        var cpName = "CP" + cpNumber;
+        var checkpointName = checkPoint.transform.parent.gameObject.name;
+        var checkpointNumber = Regex.Match(checkpointName, @"\d").Value;
+        var cpName = "CP" + checkpointNumber;
         _timeOfCheckpoints.Add(cpName, _pastTime);
+    }
+
+    //For debugging, show race time etc. in console
+    public void ShowFullRaceTime()
+    {
+        var listOfRaceTimes = _timeOfCheckpoints.Values.ToList();
+        var listOfCheckpoints = _timeOfCheckpoints.Keys.ToList();
+        Debug.Log($"Time of race: {_pastTime}");
+        Debug.Log($"Time of Checkpoint-1: {listOfCheckpoints[0]} with {listOfRaceTimes[0]}");
+        Debug.Log($"Time of Checkpoint-2: {listOfCheckpoints[1]} with {listOfRaceTimes[1]}");
     }
 
     /// <summary>

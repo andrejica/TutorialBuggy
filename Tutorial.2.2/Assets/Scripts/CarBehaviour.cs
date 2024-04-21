@@ -172,6 +172,7 @@ public class CarBehaviour : MonoBehaviour
         _dustRLEmission = dustRL.emission;
         _dustRREmission = dustRR.emission;
 
+        //Get all checkpoints on the map for the buggy to drive through
         _checkPoints = GameObject.FindGameObjectsWithTag("Checkpoint").ToList();
         _timerScript = GameObject.FindGameObjectWithTag("StartCheckpoint").GetComponent<TimingBehaviour>();
     }
@@ -246,6 +247,8 @@ public class CarBehaviour : MonoBehaviour
             {
                 _timerScript.StartTimer(false);
                 _timerScript.FinishRace(true);
+                thrustEnabled = false;
+                _timerScript.ShowFullRaceTime();
             }
         }
     }
