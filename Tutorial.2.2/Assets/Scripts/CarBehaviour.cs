@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CarBehaviour : MonoBehaviour
@@ -316,6 +317,11 @@ public class CarBehaviour : MonoBehaviour
             _engineAudioSource.pitch = pitch;
         }
     }
+
+    public void StopFmodEngineSound()
+    {
+        _engineEventEmitter.Stop();
+    }
     
     void SetParticleSystems(float engineRpm)
     { 
@@ -368,6 +374,7 @@ public class CarBehaviour : MonoBehaviour
         if (!_isFirstPerson && Input.GetKeyDown(KeyCode.K))
         {
             firstPersonCamera.SetActive(true);
+            //TODO Get FMOD to change to first person view camera on change...
             thirdPersonCamera.SetActive(false);
             _isFirstPerson = true;
         }
