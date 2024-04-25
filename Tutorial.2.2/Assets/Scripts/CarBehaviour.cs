@@ -3,6 +3,7 @@ using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CarBehaviour : MonoBehaviour
 {
@@ -135,7 +136,7 @@ public class CarBehaviour : MonoBehaviour
         _rigidBody.centerOfMass = new Vector3(localPositionCenterOfMass.x, 
             localPositionCenterOfMass.y,
             localPositionCenterOfMass.z);
-        SetWheelFrictionStiffness(forewardStiffness, sidewaysStiffness);
+        // SetWheelFrictionStiffness(forewardStiffness, sidewaysStiffness);
         
         _steerWheelXPos = steeringWheel.rotation.eulerAngles.x;
         _steerWheelZPos = steeringWheel.rotation.eulerAngles.z;
@@ -144,6 +145,11 @@ public class CarBehaviour : MonoBehaviour
         { 
             // Setup FMOD event emitter
             _engineEventEmitter = GetComponent<FMODUnity.StudioEventEmitter>();
+            _engineEventEmitter.EventInstance.setVolume(1f);
+            if (SceneManager.GetActiveScene().name == "SceneMenu")
+            {
+                _engineEventEmitter.EventInstance.setVolume(0.1f);
+            }
             _engineEventEmitter.Play();
         }
         else
@@ -175,7 +181,11 @@ public class CarBehaviour : MonoBehaviour
 
         //Get all checkpoints on the map for the buggy to drive through
         _checkPoints = GameObject.FindGameObjectsWithTag("Checkpoint").ToList();
-        _timerScript = GameObject.FindGameObjectWithTag("StartCheckpoint").GetComponent<TimingBehaviour>();
+        var test = GameObject.FindGameObjectsWithTag("StartCheckpoint").ToList();
+        if (test.Count > 0)
+        {
+            _timerScript = test[0].GetComponent<TimingBehaviour>();
+        }
     }
     
     void FixedUpdate ()

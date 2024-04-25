@@ -15,7 +15,7 @@ public class Prefs
     { 
         suspensionDistance = PlayerPrefs.GetFloat("suspensionDistance", 0.2f);
         suspensionSpringForce = PlayerPrefs.GetFloat("suspensionSpringForce", 35000f);
-        suspensionDamperForce = PlayerPrefs.GetFloat("suspensionDamperForce", 4500f);
+        suspensionDamperForce = PlayerPrefs.GetFloat("suspensionDamperForce", 4000f);
         forwardStiffness = PlayerPrefs.GetFloat("forwardStiffness", 1.0f);
         sidewaysStiffness = PlayerPrefs.GetFloat("sidewaysStiffness", 1.0f);
         maxTorque = PlayerPrefs.GetFloat("maxTorque", 1500f);
@@ -38,45 +38,93 @@ public class Prefs
         ref WheelCollider wheelRR,
         ref GameObject buggy)
     { 
-        SetWheelColliderSettings(ref wheelFL, ref wheelFR, ref wheelRL, ref wheelRR, ref buggy);
+        SetWheelColliderSuspension(ref wheelFL, ref wheelFR, ref wheelRL, ref wheelRR);
+        SetWheelColliderSuspensionSpring(ref wheelFL, ref wheelFR, ref wheelRL, ref wheelRR);
+        SetWheelColliderSuspensionDamper(ref wheelFL, ref wheelFR, ref wheelRL, ref wheelRR);
+        SetWheelColliderForwardStiffness(ref wheelFL, ref wheelFR, ref wheelRL, ref wheelRR);
+        SetWheelColliderSidewaysStiffness(ref wheelFL, ref wheelFR, ref wheelRL, ref wheelRR);
+        SetBuggyMaxTorque(ref buggy);
+        
     }
 
-    public void SetWheelColliderSettings(
+    public void SetWheelColliderSuspension(
         ref WheelCollider wheelFL,
         ref WheelCollider wheelFR,
         ref WheelCollider wheelRL,
-        ref WheelCollider wheelRR,
-        ref GameObject buggy)
+        ref WheelCollider wheelRR)
     {
         //https://forum.unity.com/threads/changing-suspension-spring.267623/
         JointSpring suspSpring = wheelFL.suspensionSpring;
-        WheelFrictionCurve fwWFC = wheelFL.forwardFriction;
-        WheelFrictionCurve swWFC = wheelFL.sidewaysFriction;
-        CarBehaviour carScript = buggy.GetComponent<CarBehaviour>();
-        carScript.maxTorque = maxTorque;
-        suspSpring.spring = suspensionSpringForce;
-        suspSpring.damper = suspensionDamperForce;
-        fwWFC.stiffness = forwardStiffness;
-        swWFC.stiffness = sidewaysStiffness;
         
         wheelFL.suspensionDistance = suspensionDistance;
-        wheelFL.suspensionSpring = suspSpring;
-        wheelFL.forwardFriction = fwWFC;
-        wheelFL.sidewaysFriction = swWFC;
-        
         wheelFR.suspensionDistance = suspensionDistance;
-        wheelFR.suspensionSpring = suspSpring;
-        wheelFR.forwardFriction = fwWFC;
-        wheelFR.sidewaysFriction = swWFC;
-        
         wheelRL.suspensionDistance = suspensionDistance;
-        wheelRL.suspensionSpring = suspSpring;
-        wheelRL.forwardFriction = fwWFC;
-        wheelRL.sidewaysFriction = swWFC;
-        
         wheelRR.suspensionDistance = suspensionDistance;
+    }
+
+    public void SetWheelColliderSuspensionSpring(
+        ref WheelCollider wheelFL,
+        ref WheelCollider wheelFR,
+        ref WheelCollider wheelRL,
+        ref WheelCollider wheelRR)
+    {
+        JointSpring suspSpring = wheelFL.suspensionSpring;
+        suspSpring.spring = suspensionSpringForce;
+        
+        wheelFL.suspensionSpring = suspSpring;
+        wheelFR.suspensionSpring = suspSpring;
+        wheelRL.suspensionSpring = suspSpring;
         wheelRR.suspensionSpring = suspSpring;
+    }
+    
+    public void SetWheelColliderSuspensionDamper(
+        ref WheelCollider wheelFL,
+        ref WheelCollider wheelFR,
+        ref WheelCollider wheelRL,
+        ref WheelCollider wheelRR)
+    {
+        JointSpring suspSpring = wheelFL.suspensionSpring;
+        
+        suspSpring.damper = suspensionDamperForce;
+        wheelFL.suspensionSpring = suspSpring;
+        wheelFR.suspensionSpring = suspSpring;
+        wheelRL.suspensionSpring = suspSpring;
+        wheelRR.suspensionSpring = suspSpring;
+    }
+
+    public void SetWheelColliderForwardStiffness(
+        ref WheelCollider wheelFL,
+        ref WheelCollider wheelFR,
+        ref WheelCollider wheelRL,
+        ref WheelCollider wheelRR)
+    {
+        WheelFrictionCurve fwWFC = wheelFL.forwardFriction;
+        fwWFC.stiffness = forwardStiffness;
+        
+        wheelFL.forwardFriction = fwWFC;
+        wheelFR.forwardFriction = fwWFC;
+        wheelRL.forwardFriction = fwWFC;
         wheelRR.forwardFriction = fwWFC;
+    }
+    
+    public void SetWheelColliderSidewaysStiffness(
+        ref WheelCollider wheelFL,
+        ref WheelCollider wheelFR,
+        ref WheelCollider wheelRL,
+        ref WheelCollider wheelRR)
+    {
+        WheelFrictionCurve swWFC = wheelFL.sidewaysFriction;
+        swWFC.stiffness = sidewaysStiffness;
+        
+        wheelFL.sidewaysFriction = swWFC;
+        wheelFR.sidewaysFriction = swWFC;
+        wheelRL.sidewaysFriction = swWFC;
         wheelRR.sidewaysFriction = swWFC;
+    }
+
+    public void SetBuggyMaxTorque(ref GameObject buggy)
+    {
+        CarBehaviour carScript = buggy.GetComponent<CarBehaviour>();
+        carScript.maxTorque = maxTorque;
     }
 }

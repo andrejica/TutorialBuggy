@@ -22,7 +22,7 @@ public class MenuScene1Behaviour : MonoBehaviour
     
     public void OnBtnBackToStartMenuClick()
     {
-        GameObject.Find("Buggy").GetComponent<CarBehaviour>().StopFmodEngineSound();
+        buggy.GetComponent<CarBehaviour>().StopFmodEngineSound();
         _prefs.Save();
         SceneManager.LoadScene("SceneMenu");
     }

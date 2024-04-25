@@ -44,25 +44,53 @@ public class MenuBehaviour : MonoBehaviour
         txtMaxTorqueNum.text = sliMaxTorqueForce.value.ToString("0");
     }
     
-    public void OnSliderChangedWheelSettings(float suspDistance)
+    public void OnSliderChangedSuspDistance(float suspDistance)
     {
         txtDistanceNum.text = sliSuspDistance.value.ToString("0.00");
-        txtSpringNum.text = sliSuspSpringForce.value.ToString("0");
-        txtDamperNum.text = sliSuspDamperForce.value.ToString("0");
-        
-        txtFrictForwNum.text = sliFrictForwForce.value.ToString("0.0");
-        txtFrictSideNum.text = sliFrictSideForce.value.ToString("0.0");
-        txtMaxTorqueNum.text = sliMaxTorqueForce.value.ToString("0");
         
         _prefs.suspensionDistance = sliSuspDistance.value;
+        
+        _prefs.SetWheelColliderSuspension(ref wheelColliderFL, ref wheelColliderFR, ref wheelColliderRL, ref wheelColliderRR);
+    }
+
+    public void OnSliderChangedSuspSpring(float suspSpring)
+    {
+        txtSpringNum.text = sliSuspSpringForce.value.ToString("0");
         _prefs.suspensionSpringForce = sliSuspSpringForce.value;
+        
+        _prefs.SetWheelColliderSuspensionSpring(ref wheelColliderFL, ref wheelColliderFR, ref wheelColliderRL, ref wheelColliderRR);
+    }
+    
+    public void OnSliderChangedSuspDamper(float suspDamper)
+    {
+        txtDamperNum.text = sliSuspDamperForce.value.ToString("0");
         _prefs.suspensionDamperForce = sliSuspDamperForce.value;
         
-        _prefs.forwardStiffness = sliFrictForwForce.value; 
+        _prefs.SetWheelColliderSuspensionDamper(ref wheelColliderFL, ref wheelColliderFR, ref wheelColliderRL, ref wheelColliderRR);
+    }
+    
+    public void OnSliderChangedForwardStiffness(float forwardStiffnes)
+    {
+        txtFrictForwNum.text = sliFrictForwForce.value.ToString("0.0");
+        _prefs.forwardStiffness = sliFrictForwForce.value;
+        
+        _prefs.SetWheelColliderForwardStiffness(ref wheelColliderFL, ref wheelColliderFR, ref wheelColliderRL, ref wheelColliderRR);
+    }
+    
+    public void OnSliderChangedSidewaysStiffness(float sidewaysStiffnes)
+    {
+        txtFrictSideNum.text = sliFrictSideForce.value.ToString("0.0");
         _prefs.sidewaysStiffness = sliFrictSideForce.value;
+        
+        _prefs.SetWheelColliderSidewaysStiffness(ref wheelColliderFL, ref wheelColliderFR, ref wheelColliderRL, ref wheelColliderRR);
+    }
+    
+    public void OnSliderChangedMaxTorque(float maxTorque)
+    {
+        txtMaxTorqueNum.text = sliMaxTorqueForce.value.ToString("0");
         _prefs.maxTorque = sliMaxTorqueForce.value;
         
-        _prefs.SetWheelColliderSettings(ref wheelColliderFL, ref wheelColliderFR, ref wheelColliderRL, ref wheelColliderRR, ref buggy);
+        _prefs.SetBuggyMaxTorque(ref buggy);
     }
     
     public void OnBtnStartClick()
