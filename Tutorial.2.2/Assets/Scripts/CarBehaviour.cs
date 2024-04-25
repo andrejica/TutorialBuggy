@@ -16,7 +16,7 @@ public class CarBehaviour : MonoBehaviour
     private float _maxSteeringWheelAngle = 90;
     private float _steerWheelXPos;
     private float _steerWheelZPos;
-    float maxTorque = 1500;
+    public float maxTorque = 1500;
     public float maxSteerAngle = 45;
     private float _testAngle;
     public float sidewaysStiffness = 1.5f;

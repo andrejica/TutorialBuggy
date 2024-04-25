@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -675,6 +675,7 @@ MonoBehaviour:
   wheelColliderFR: {fileID: 4392398950156335488}
   wheelColliderRL: {fileID: 4392398950156335487}
   wheelColliderRR: {fileID: 4392398950156335486}
+  buggy: {fileID: 4392398950156335490}
 --- !u!1001 &975592866
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1181,6 +1182,11 @@ WheelCollider:
 --- !u!146 &4392398950156335489 stripped
 WheelCollider:
   m_CorrespondingSourceObject: {fileID: 8672513402423494965, guid: 7f63642b78911a741bf7d5ec101b132f, type: 3}
+  m_PrefabInstance: {fileID: 4392398950156335485}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &4392398950156335490 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8817853488823347724, guid: 7f63642b78911a741bf7d5ec101b132f, type: 3}
   m_PrefabInstance: {fileID: 4392398950156335485}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8316647679201340449

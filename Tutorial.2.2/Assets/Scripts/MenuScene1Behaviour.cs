@@ -9,6 +9,7 @@ public class MenuScene1Behaviour : MonoBehaviour
     public WheelCollider wheelColliderFR;
     public WheelCollider wheelColliderRL;
     public WheelCollider wheelColliderRR;
+    public GameObject buggy;
     private Prefs _prefs;
     
     // Start is called before the first frame update
@@ -16,18 +17,15 @@ public class MenuScene1Behaviour : MonoBehaviour
     {
         _prefs = new Prefs();
         _prefs.Load();
-        _prefs.SetAll(ref wheelColliderFL, ref wheelColliderFR, ref wheelColliderRL, ref wheelColliderRR);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        _prefs.SetAll(ref wheelColliderFL, ref wheelColliderFR, ref wheelColliderRL, ref wheelColliderRR, ref buggy);
     }
     
     public void OnBtnBackToStartMenuClick()
     {
         GameObject.Find("Buggy").GetComponent<CarBehaviour>().StopFmodEngineSound();
+        _prefs.Save();
         SceneManager.LoadScene("SceneMenu");
     }
+    
+    void OnApplicationQuit() { _prefs.Save(); }
 }
