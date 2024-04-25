@@ -671,6 +671,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f32eaa77ba56d90469013a1250a459af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  wheelColliderFL: {fileID: 4392398950156335489}
+  wheelColliderFR: {fileID: 4392398950156335488}
+  wheelColliderRL: {fileID: 4392398950156335487}
+  wheelColliderRR: {fileID: 4392398950156335486}
 --- !u!1001 &975592866
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -981,6 +985,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: SpeedCanvas
       objectReference: {fileID: 0}
+    - target: {fileID: 7062257106494604825, guid: d2a84a9aa22cb934496fd1c2d2edb6d0, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7062257106494604825, guid: d2a84a9aa22cb934496fd1c2d2edb6d0, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7062257106494604825, guid: d2a84a9aa22cb934496fd1c2d2edb6d0, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7062257106494604825, guid: d2a84a9aa22cb934496fd1c2d2edb6d0, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7062257106494604825, guid: d2a84a9aa22cb934496fd1c2d2edb6d0, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 104.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7062257106494604825, guid: d2a84a9aa22cb934496fd1c2d2edb6d0, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 221.4
+      objectReference: {fileID: 0}
     - target: {fileID: 7998844756260818465, guid: d2a84a9aa22cb934496fd1c2d2edb6d0, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -1135,6 +1163,26 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7f63642b78911a741bf7d5ec101b132f, type: 3}
+--- !u!146 &4392398950156335486 stripped
+WheelCollider:
+  m_CorrespondingSourceObject: {fileID: 3871803465010957952, guid: 7f63642b78911a741bf7d5ec101b132f, type: 3}
+  m_PrefabInstance: {fileID: 4392398950156335485}
+  m_PrefabAsset: {fileID: 0}
+--- !u!146 &4392398950156335487 stripped
+WheelCollider:
+  m_CorrespondingSourceObject: {fileID: 509224344251424908, guid: 7f63642b78911a741bf7d5ec101b132f, type: 3}
+  m_PrefabInstance: {fileID: 4392398950156335485}
+  m_PrefabAsset: {fileID: 0}
+--- !u!146 &4392398950156335488 stripped
+WheelCollider:
+  m_CorrespondingSourceObject: {fileID: 8322668897797115390, guid: 7f63642b78911a741bf7d5ec101b132f, type: 3}
+  m_PrefabInstance: {fileID: 4392398950156335485}
+  m_PrefabAsset: {fileID: 0}
+--- !u!146 &4392398950156335489 stripped
+WheelCollider:
+  m_CorrespondingSourceObject: {fileID: 8672513402423494965, guid: 7f63642b78911a741bf7d5ec101b132f, type: 3}
+  m_PrefabInstance: {fileID: 4392398950156335485}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8316647679201340449
 PrefabInstance:
   m_ObjectHideFlags: 0
