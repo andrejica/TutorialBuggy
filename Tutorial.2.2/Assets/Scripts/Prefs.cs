@@ -127,4 +127,14 @@ public class Prefs
         CarBehaviour carScript = buggy.GetComponent<CarBehaviour>();
         carScript.maxTorque = maxTorque;
     }
+    
+    public void SetBuggyRocketsVisible(ref GameObject buggy, bool isRocketVisible)
+    {
+        //TODO visibility for other parts of buggy too...
+        CarBehaviour carScript = buggy.GetComponent<CarBehaviour>();
+        var test1 = buggy.gameObject.transform.GetChild(3);//.Find("RocketLdauncherL");
+        buggy.gameObject.transform.Find("RocketLauncherR");
+
+        test1.GetComponent<Renderer>().enabled = isRocketVisible;
+    }
 }

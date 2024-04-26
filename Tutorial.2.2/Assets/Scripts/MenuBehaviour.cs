@@ -93,6 +93,13 @@ public class MenuBehaviour : MonoBehaviour
         _prefs.SetBuggyMaxTorque(ref buggy);
     }
     
+    public void OnCheckBoxChangedFeatureRockets(bool isRocketsVisible)
+    {
+        _prefs.maxTorque = sliMaxTorqueForce.value;
+        
+        _prefs.SetBuggyRocketsVisible(ref buggy, isRocketsVisible);
+    }
+    
     public void OnBtnStartClick()
     {
         _prefs.Save();
