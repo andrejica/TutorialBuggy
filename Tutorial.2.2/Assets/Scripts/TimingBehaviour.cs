@@ -28,6 +28,7 @@ public class TimingBehaviour : MonoBehaviour
 
         _countDownAudioSource = gameObject.AddComponent<AudioSource>();
         _countDownAudioSource.clip = countDownAudioClip;
+        _countDownAudioSource.volume = 0.6f;
         
         print("Begin Start:" + Time.time);
         StartCoroutine(GameStart());

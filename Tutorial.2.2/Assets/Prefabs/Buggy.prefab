@@ -10892,6 +10892,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -8228972259811636446, guid: 45a72fbc10aaf65459cc0affc5b4c1b6, type: 3}
+      propertyPath: m_Name
+      value: RocketLauncherR
+      objectReference: {fileID: 0}
     - target: {fileID: -7562846898429900858, guid: 45a72fbc10aaf65459cc0affc5b4c1b6, type: 3}
       propertyPath: m_Name
       value: WheelRR
@@ -10952,6 +10956,10 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 2053f18c44a919748963b84c8953ec05, type: 2}
+    - target: {fileID: -2192978121378197703, guid: 45a72fbc10aaf65459cc0affc5b4c1b6, type: 3}
+      propertyPath: m_Name
+      value: RocketLauncherL
+      objectReference: {fileID: 0}
     - target: {fileID: -2062897950558326026, guid: 45a72fbc10aaf65459cc0affc5b4c1b6, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -11157,6 +11165,7 @@ MonoBehaviour:
   wheelColliderRL: {fileID: 509224344251424908}
   wheelColliderRR: {fileID: 3871803465010957952}
   steeringWheel: {fileID: 4279183444507448485}
+  maxTorque: 1500
   maxSteerAngle: 45
   sidewaysStiffness: 1.5
   forewardStiffness: 1.5

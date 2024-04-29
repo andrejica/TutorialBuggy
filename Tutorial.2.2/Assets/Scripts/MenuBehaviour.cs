@@ -16,6 +16,11 @@ public class MenuBehaviour : MonoBehaviour
     public Slider sliFrictForwForce;
     public Slider sliFrictSideForce;
     public Slider sliMaxTorqueForce;
+    public Toggle tglRocketsVisible;
+    public Toggle tglGunVisible;
+    public Slider sliColorHue;
+    public Slider sliColorSaturation;
+    public Slider sliColorValue;
     public TMP_Text txtDistanceNum;
     public TMP_Text txtSpringNum;
     public TMP_Text txtDamperNum;
@@ -36,6 +41,11 @@ public class MenuBehaviour : MonoBehaviour
         sliFrictForwForce.value = _prefs.forwardStiffness;
         sliFrictSideForce.value = _prefs.sidewaysStiffness;
         sliMaxTorqueForce.value = _prefs.maxTorque;
+        tglRocketsVisible.isOn = _prefs.isRocketVisible;
+        tglGunVisible.isOn = _prefs.isGunVisible;
+        sliColorHue.value = _prefs.buggyHue;
+        sliColorSaturation.value = _prefs.buggySaturation;
+        sliColorValue.value = _prefs.buggyValue;
         txtDistanceNum.text = sliSuspDistance.value.ToString("0.00");
         txtSpringNum.text = sliSuspSpringForce.value.ToString("0");
         txtDamperNum.text = sliSuspDamperForce.value.ToString("0");
@@ -69,7 +79,7 @@ public class MenuBehaviour : MonoBehaviour
         _prefs.SetWheelColliderSuspensionDamper(ref wheelColliderFL, ref wheelColliderFR, ref wheelColliderRL, ref wheelColliderRR);
     }
     
-    public void OnSliderChangedForwardStiffness(float forwardStiffnes)
+    public void OnSliderChangedForwardStiffness(float forwardStiffness)
     {
         txtFrictForwNum.text = sliFrictForwForce.value.ToString("0.0");
         _prefs.forwardStiffness = sliFrictForwForce.value;
@@ -77,7 +87,7 @@ public class MenuBehaviour : MonoBehaviour
         _prefs.SetWheelColliderForwardStiffness(ref wheelColliderFL, ref wheelColliderFR, ref wheelColliderRL, ref wheelColliderRR);
     }
     
-    public void OnSliderChangedSidewaysStiffness(float sidewaysStiffnes)
+    public void OnSliderChangedSidewaysStiffness(float sidewaysStiffness)
     {
         txtFrictSideNum.text = sliFrictSideForce.value.ToString("0.0");
         _prefs.sidewaysStiffness = sliFrictSideForce.value;
@@ -95,9 +105,32 @@ public class MenuBehaviour : MonoBehaviour
     
     public void OnCheckBoxChangedFeatureRockets(bool isRocketsVisible)
     {
-        _prefs.maxTorque = sliMaxTorqueForce.value;
-        
-        _prefs.SetBuggyRocketsVisible(ref buggy, isRocketsVisible);
+        _prefs.isRocketVisible = tglRocketsVisible.isOn;
+        _prefs.SetBuggyRocketsVisible(ref buggy);
+    }
+    
+    public void OnCheckBoxChangedFeatureGun(bool isGunVisible)
+    {
+        _prefs.isGunVisible = tglGunVisible.isOn;
+        _prefs.SetBuggyGunVisible(ref buggy);
+    }
+    
+    public void OnSliderChangedColorHue(float colorHue)
+    {
+        _prefs.buggyHue = sliColorHue.value;
+        _prefs.SetBuggyColorHSV(ref buggy);
+    }
+    
+    public void OnSliderChangedColorSaturation(float colorSaturation)
+    {
+        _prefs.buggySaturation = sliColorSaturation.value;
+        _prefs.SetBuggyColorHSV(ref buggy);
+    }
+    
+    public void OnSliderChangedColorValue(float colorValue)
+    {
+        _prefs.buggyValue = sliColorValue.value;
+        _prefs.SetBuggyColorHSV(ref buggy);
     }
     
     public void OnBtnStartClick()
