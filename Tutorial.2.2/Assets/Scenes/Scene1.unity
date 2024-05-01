@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -676,6 +676,8 @@ MonoBehaviour:
   wheelColliderRL: {fileID: 4392398950156335487}
   wheelColliderRR: {fileID: 4392398950156335486}
   buggy: {fileID: 4392398950156335490}
+  bfhSkin: {fileID: 2100000, guid: 686062ea3dcd89e49ac5a0b8a3e2d9e0, type: 2}
+  starndardSkin: {fileID: 2100000, guid: 0e4b0a9a4c460c749bfcbdb2af31bb16, type: 2}
 --- !u!1001 &975592866
 PrefabInstance:
   m_ObjectHideFlags: 0

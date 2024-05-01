@@ -14,6 +14,14 @@ public class Prefs
     
     public bool isRocketVisible;
     public bool isGunVisible;
+    public bool isCageVisible;
+    public bool isCanistersVisible;
+    public bool isFrontLampsVisible;
+    public bool isBackSeatVisible;
+    
+    public string selectedSkin;
+    public Material bfhSkin;
+    public Material starndardSkin;
 
     public float buggyHue;
     public float buggySaturation;
@@ -30,6 +38,12 @@ public class Prefs
 
         isRocketVisible = PlayerPrefs.GetInt("isRocketVisible", 1) != 0;
         isGunVisible = PlayerPrefs.GetInt("isGunVisible", 1) != 0;
+        isCageVisible = PlayerPrefs.GetInt("isCageVisible", 1) != 0;
+        isCanistersVisible = PlayerPrefs.GetInt("isCanistersVisible", 1) != 0;
+        isFrontLampsVisible = PlayerPrefs.GetInt("isFrontLampsVisible", 1) != 0;
+        isBackSeatVisible = PlayerPrefs.GetInt("isBackSeatVisible", 1) != 0;
+        
+        selectedSkin = PlayerPrefs.GetString("selectedSkin", "bfhSkin");
         
         buggyHue = PlayerPrefs.GetFloat("buggyHue", 0f);
         buggySaturation = PlayerPrefs.GetFloat("buggySaturation", 0f);
@@ -47,6 +61,12 @@ public class Prefs
 
         PlayerPrefs.SetInt("isRocketVisible", isRocketVisible ? 1 : 0);
         PlayerPrefs.SetInt("isGunVisible", isGunVisible ? 1 : 0);
+        PlayerPrefs.SetInt("isCageVisible", isCageVisible ? 1 : 0);
+        PlayerPrefs.SetInt("isCanistersVisible", isCanistersVisible ? 1 : 0);
+        PlayerPrefs.SetInt("isFrontLampsVisible", isFrontLampsVisible ? 1 : 0);
+        PlayerPrefs.SetInt("isBackSeatVisible", isBackSeatVisible ? 1 : 0);
+        
+        PlayerPrefs.SetString("selectedSkin", selectedSkin);
         
         PlayerPrefs.SetFloat("buggyHue", buggyHue);
         PlayerPrefs.SetFloat("buggySaturation", buggySaturation);
@@ -69,6 +89,12 @@ public class Prefs
         
         SetBuggyRocketsVisible(ref buggy);
         SetBuggyGunVisible(ref buggy);
+        SetBuggyCageVisible(ref buggy);
+        SetBuggyCanistersVisible(ref buggy);
+        SetBuggyFrontLampsVisible(ref buggy);
+        SetBuggyBackSeatVisible(ref buggy);
+        
+        SetBuggySkin(ref buggy);
         
         SetBuggyColorHSV(ref buggy);
     }
@@ -158,7 +184,6 @@ public class Prefs
     {
         Transform rocketR = buggy.gameObject.transform.Find("RocketLauncherR");
         Transform rocketL = buggy.gameObject.transform.Find("RocketLauncherL");
-
         rocketR.GetComponent<Renderer>().enabled = isRocketVisible;
         rocketL.GetComponent<Renderer>().enabled = isRocketVisible;
     }
@@ -167,16 +192,56 @@ public class Prefs
     {
         Transform gun = buggy.gameObject.transform.Find("RoofGun");
         Transform gunJoint = buggy.gameObject.transform.Find("RoofGunJoint");
-
         gun.GetComponent<Renderer>().enabled = isGunVisible;
         gunJoint.GetComponent<Renderer>().enabled = isGunVisible;
+    }
+    
+    public void SetBuggyCageVisible(ref GameObject buggy)
+    {
+        Transform cage = buggy.gameObject.transform.Find("Cage");
+        cage.GetComponent<Renderer>().enabled = isCageVisible;
+    }
+    
+    public void SetBuggyCanistersVisible(ref GameObject buggy)
+    {
+        Transform gun = buggy.gameObject.transform.Find("Canisters");
+        gun.GetComponent<Renderer>().enabled = isCanistersVisible;
+    }
+    
+    public void SetBuggyFrontLampsVisible(ref GameObject buggy)
+    {
+        Transform gun = buggy.gameObject.transform.Find("FrontLamps");
+        gun.GetComponent<Renderer>().enabled = isFrontLampsVisible;
+    }
+    
+    public void SetBuggyBackSeatVisible(ref GameObject buggy)
+    {
+        Transform gun = buggy.gameObject.transform.Find("BackSeat");
+        gun.GetComponent<Renderer>().enabled = isBackSeatVisible;
+    }
+    
+    public void SetBuggySkin(ref GameObject buggy)
+    {
+        Transform buggyTransform = buggy.gameObject.transform.Find("buggy");
+        Renderer buggyRenderer = buggyTransform.GetComponent<Renderer>();
+
+        switch (selectedSkin)
+        {
+            case "bfhSkin":
+                buggyRenderer.material = bfhSkin;
+                break;
+            case "standardSkin":
+                buggyRenderer.material = starndardSkin;
+                break;
+        }
+
     }
     
     public void SetBuggyColorHSV(ref GameObject buggy)
     {
         Transform buggyGameObject = buggy.gameObject.transform.Find("buggy");
-        var test = buggyGameObject.GetComponent<Renderer>();
+        Renderer buggyRenderer = buggyGameObject.GetComponent<Renderer>();
 
-        test.material.color = Color.HSVToRGB(buggyHue, buggySaturation, buggyValue);
+        buggyRenderer.material.color = Color.HSVToRGB(buggyHue, buggySaturation, buggyValue);
     }
 }

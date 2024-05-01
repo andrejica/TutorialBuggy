@@ -10,6 +10,10 @@ public class MenuScene1Behaviour : MonoBehaviour
     public WheelCollider wheelColliderRL;
     public WheelCollider wheelColliderRR;
     public GameObject buggy;
+    
+    public Material bfhSkin;
+    public Material starndardSkin;
+    
     private Prefs _prefs;
     
     // Start is called before the first frame update
@@ -17,6 +21,11 @@ public class MenuScene1Behaviour : MonoBehaviour
     {
         _prefs = new Prefs();
         _prefs.Load();
+        
+        //Set Material for buggy before SetAll()
+        _prefs.bfhSkin = bfhSkin;
+        _prefs.starndardSkin = starndardSkin;
+        
         _prefs.SetAll(ref wheelColliderFL, ref wheelColliderFR, ref wheelColliderRL, ref wheelColliderRR, ref buggy);
     }
     

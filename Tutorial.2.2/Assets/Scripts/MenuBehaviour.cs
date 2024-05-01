@@ -10,17 +10,30 @@ public class MenuBehaviour : MonoBehaviour
     public WheelCollider wheelColliderRL;
     public WheelCollider wheelColliderRR;
     public GameObject buggy;
+    
     public Slider sliSuspDistance;
     public Slider sliSuspSpringForce;
     public Slider sliSuspDamperForce;
+    
     public Slider sliFrictForwForce;
     public Slider sliFrictSideForce;
     public Slider sliMaxTorqueForce;
+    
     public Toggle tglRocketsVisible;
     public Toggle tglGunVisible;
+    public Toggle tglCageVisible;
+    public Toggle tglCanistersVisible;
+    public Toggle tglFrontLampsVisible;
+    public Toggle tglBackSeatVisible;
+    
+    // public string selectedSkin = "bfhSkin";
+    public Material bfhSkin;
+    public Material starndardSkin;
+    
     public Slider sliColorHue;
     public Slider sliColorSaturation;
     public Slider sliColorValue;
+    
     public TMP_Text txtDistanceNum;
     public TMP_Text txtSpringNum;
     public TMP_Text txtDamperNum;
@@ -34,18 +47,31 @@ public class MenuBehaviour : MonoBehaviour
     {
         _prefs = new Prefs();
         _prefs.Load();
+        
+        //Set Material for buggy before SetAll()
+        _prefs.bfhSkin = bfhSkin;
+        _prefs.starndardSkin = starndardSkin;
+        
         _prefs.SetAll(ref wheelColliderFL, ref wheelColliderFR, ref wheelColliderRL, ref wheelColliderRR, ref buggy);
         sliSuspDistance.value = _prefs.suspensionDistance;
         sliSuspSpringForce.value = _prefs.suspensionSpringForce;
         sliSuspDamperForce.value = _prefs.suspensionDamperForce;
+        
         sliFrictForwForce.value = _prefs.forwardStiffness;
         sliFrictSideForce.value = _prefs.sidewaysStiffness;
         sliMaxTorqueForce.value = _prefs.maxTorque;
+        
         tglRocketsVisible.isOn = _prefs.isRocketVisible;
         tglGunVisible.isOn = _prefs.isGunVisible;
+        tglCageVisible.isOn = _prefs.isCageVisible;
+        tglCanistersVisible.isOn = _prefs.isCanistersVisible;
+        tglFrontLampsVisible.isOn = _prefs.isFrontLampsVisible;
+        tglBackSeatVisible.isOn = _prefs.isBackSeatVisible;
+        
         sliColorHue.value = _prefs.buggyHue;
         sliColorSaturation.value = _prefs.buggySaturation;
         sliColorValue.value = _prefs.buggyValue;
+        
         txtDistanceNum.text = sliSuspDistance.value.ToString("0.00");
         txtSpringNum.text = sliSuspSpringForce.value.ToString("0");
         txtDamperNum.text = sliSuspDamperForce.value.ToString("0");
@@ -113,6 +139,42 @@ public class MenuBehaviour : MonoBehaviour
     {
         _prefs.isGunVisible = tglGunVisible.isOn;
         _prefs.SetBuggyGunVisible(ref buggy);
+    }
+    
+    public void OnCheckBoxChangedFeatureCage(bool isCageVisible)
+    {
+        _prefs.isCageVisible = tglCageVisible.isOn;
+        _prefs.SetBuggyCageVisible(ref buggy);
+    }
+    
+    public void OnCheckBoxChangedFeatureCanisters(bool isCanistersVisible)
+    {
+        _prefs.isCanistersVisible = tglCanistersVisible.isOn;
+        _prefs.SetBuggyCanistersVisible(ref buggy);
+    }
+    
+    public void OnCheckBoxChangedFeatureFrontLamps(bool isFrontLampsVisible)
+    {
+        _prefs.isFrontLampsVisible = tglFrontLampsVisible.isOn;
+        _prefs.SetBuggyFrontLampsVisible(ref buggy);
+    }
+    
+    public void OnCheckBoxChangedFeatureBackSeat(bool isBackSeatVisible)
+    {
+        _prefs.isBackSeatVisible = tglBackSeatVisible.isOn;
+        _prefs.SetBuggyBackSeatVisible(ref buggy);
+    }
+    
+    public void OnButtonPressedBfhBuggySkin()
+    {
+        _prefs.selectedSkin = "bfhSkin";
+        _prefs.SetBuggySkin(ref buggy);
+    }
+    
+    public void OnButtonPressedStandardSkin()
+    {
+        _prefs.selectedSkin = "standardSkin";
+        _prefs.SetBuggySkin(ref buggy);
     }
     
     public void OnSliderChangedColorHue(float colorHue)
