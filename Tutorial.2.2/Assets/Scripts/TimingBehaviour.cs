@@ -12,6 +12,7 @@ public class TimingBehaviour : MonoBehaviour
     public AudioClip countDownAudioClip;
     private AudioSource _countDownAudioSource;
     public TMP_Text timeText;
+    public TMP_Text startCountDownText;
 
     private Dictionary<string, float> _timeOfCheckpoints = new();
     private float _pastTime = 0;
@@ -25,10 +26,10 @@ public class TimingBehaviour : MonoBehaviour
     {
         _carScript = GameObject.Find("Buggy").GetComponent<CarBehaviour>();
         _carScript.thrustEnabled = false;
-
+        
         _countDownAudioSource = gameObject.AddComponent<AudioSource>();
         _countDownAudioSource.clip = countDownAudioClip;
-        _countDownAudioSource.volume = 0.6f;
+        _countDownAudioSource.volume = 0.45f;
         
         print("Begin Start:" + Time.time);
         StartCoroutine(GameStart());
@@ -44,12 +45,15 @@ public class TimingBehaviour : MonoBehaviour
             yield return new WaitForSeconds(1);
             
             _countDownAudioSource.Play();
+            // startCountDownText.text = _countDown.ToString("0");
             print(" WaitForSeconds:" + Time.time);
         }
         
         //Play final countdown with higher pitch
         _countDownAudioSource.pitch = 1.5f;
         _countDownAudioSource.Play();
+        startCountDownText.text = "GO";
+        startCountDownText.color = Color.green;
         print(" End GameStart:" + Time.time);
 
         _carScript.thrustEnabled = true;
@@ -59,11 +63,15 @@ public class TimingBehaviour : MonoBehaviour
     {
         if (_carScript.thrustEnabled)
         {
-            if (_isStarted && !_isFinished)
-                _pastTime += Time.deltaTime;
+            if (Time.time > 4 && Time.time < 5) { startCountDownText.enabled = false; }
+            if (_isStarted && !_isFinished) { _pastTime += Time.deltaTime; }
             timeText.text = _pastTime.ToString("0.0") + " sec.";
         }
-        else { timeText.text = _countDown.ToString("0.0") + " sec."; }
+        else
+        {
+            timeText.text = _countDown.ToString("0.0") + " sec.";
+            startCountDownText.text = _countDown.ToString("0");
+        }
 
         if (_isFinished)
         {
