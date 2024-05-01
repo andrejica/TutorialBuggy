@@ -14,7 +14,8 @@ public class TimingBehaviour : MonoBehaviour
     public TMP_Text timeText;
     public TMP_Text startCountDownText;
 
-    private Dictionary<string, float> _timeOfCheckpoints = new();
+    private readonly Dictionary<string, float> _timeOfCheckpoints = new();
+    private float _startTimeScreen1;
     private float _pastTime = 0;
     private bool _isFinished = false;
     private bool _isStarted = false;
@@ -30,6 +31,8 @@ public class TimingBehaviour : MonoBehaviour
         _countDownAudioSource = gameObject.AddComponent<AudioSource>();
         _countDownAudioSource.clip = countDownAudioClip;
         _countDownAudioSource.volume = 0.45f;
+
+        _startTimeScreen1 = Time.time;
         
         print("Begin Start:" + Time.time);
         StartCoroutine(GameStart());
@@ -63,7 +66,7 @@ public class TimingBehaviour : MonoBehaviour
     {
         if (_carScript.thrustEnabled)
         {
-            if (Time.time > 4 && Time.time < 5) { startCountDownText.enabled = false; }
+            if (Time.time > _startTimeScreen1 + 4 && Time.time < _startTimeScreen1 + 5) { startCountDownText.enabled = false; }
             if (_isStarted && !_isFinished) { _pastTime += Time.deltaTime; }
             timeText.text = _pastTime.ToString("0.0") + " sec.";
         }
@@ -92,9 +95,9 @@ public class TimingBehaviour : MonoBehaviour
     {
         var listOfRaceTimes = _timeOfCheckpoints.Values.ToList();
         var listOfCheckpoints = _timeOfCheckpoints.Keys.ToList();
-        Debug.Log($"Time of race: {_pastTime}");
-        Debug.Log($"Time of Checkpoint-1: {listOfCheckpoints[0]} with {listOfRaceTimes[0]}");
-        Debug.Log($"Time of Checkpoint-2: {listOfCheckpoints[1]} with {listOfRaceTimes[1]}");
+        Debug.Log($"Time of race: {_pastTime:0.00}");
+        Debug.Log($"Time of Checkpoint-1: {listOfCheckpoints[0]} with {listOfRaceTimes[0]:0.00}");
+        Debug.Log($"Time of Checkpoint-2: {listOfCheckpoints[1]} with {listOfRaceTimes[1]:0.00}");
     }
 
     /// <summary>
