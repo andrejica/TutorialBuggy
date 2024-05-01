@@ -26,7 +26,7 @@ public class MenuBehaviour : MonoBehaviour
     public Toggle tglFrontLampsVisible;
     public Toggle tglBackSeatVisible;
     
-    // public string selectedSkin = "bfhSkin";
+    //Load Skin on script directly
     public Material bfhSkin;
     public Material starndardSkin;
     

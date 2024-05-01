@@ -11,6 +11,7 @@ public class MenuScene1Behaviour : MonoBehaviour
     public WheelCollider wheelColliderRR;
     public GameObject buggy;
     
+    //Load skins for buggy on script directly
     public Material bfhSkin;
     public Material starndardSkin;
     

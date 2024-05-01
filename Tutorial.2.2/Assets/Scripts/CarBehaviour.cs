@@ -48,6 +48,15 @@ public class CarBehaviour : MonoBehaviour
     private FMODUnity.StudioEventEmitter _engineEventEmitter;
     public bool useFMODEngineSound = true;
     
+    // Full breaking and skidmarking
+    public float fullBrakeTorque = 5000;
+    public float maxBrakeTorque = 10000;
+    public AudioClip brakeAudioClip;
+    private bool _doSkidmarking;
+    private bool _carIsNotOnSand;
+    private AudioSource _brakeAudioSource;
+    public WheelBehaviour[] wheelBehaviours = new WheelBehaviour[4];
+    
     public ParticleSystem smokeL;
     public ParticleSystem smokeR;
     public ParticleSystem dustFL;
@@ -65,7 +74,6 @@ public class CarBehaviour : MonoBehaviour
     private ParticleSystem.EmissionModule _dustRLEmission;
     private ParticleSystem.EmissionModule _dustRREmission;
     
-
     private bool _carIsOnDrySand;
     private string _groundTagFL;
     private string _groundTagFR;
@@ -181,11 +189,18 @@ public class CarBehaviour : MonoBehaviour
 
         //Get all checkpoints on the map for the buggy to drive through
         _checkPoints = GameObject.FindGameObjectsWithTag("Checkpoint").ToList();
-        var test = GameObject.FindGameObjectsWithTag("StartCheckpoint").ToList();
-        if (test.Count > 0)
+        List<GameObject> startCheckPoints = GameObject.FindGameObjectsWithTag("StartCheckpoint").ToList();
+        if (startCheckPoints.Count > 0)
         {
-            _timerScript = test[0].GetComponent<TimingBehaviour>();
+            _timerScript = startCheckPoints[0].GetComponent<TimingBehaviour>();
         }
+        
+        // Configure brake audiosource component by program
+        _brakeAudioSource = gameObject.AddComponent<AudioSource>();
+        _brakeAudioSource.clip = brakeAudioClip;
+        _brakeAudioSource.loop = true;
+        _brakeAudioSource.volume = 0.7f;
+        _brakeAudioSource.playOnAwake = false;
     }
     
     void FixedUpdate ()
@@ -196,6 +211,7 @@ public class CarBehaviour : MonoBehaviour
         WheelHit hitFL = GetGroundInfos(ref wheelColliderFL, ref _groundTagFL, ref _groundTextureFL);
         WheelHit hitFR = GetGroundInfos(ref wheelColliderFR, ref _groundTagFR, ref _groundTextureFR);
         _carIsOnDrySand = _groundTagFL.CompareTo("Terrain")==0 && _groundTextureFL==0;
+        _carIsNotOnSand = !(_groundTagFL.CompareTo("Terrain")==0 && _groundTextureFL<=1);
         // Debug.Log($"Buggy is on Sand texture: {_carIsOnDrySand}");
         // Debug.Log($"Buggy left tire on texture: {_groundTextureFL}");
 
@@ -473,24 +489,46 @@ public class CarBehaviour : MonoBehaviour
                          (Input.GetAxis("Vertical") < 0 && BuggyMovesForward() ||
                           Input.GetAxis("Vertical") > 0 && !BuggyMovesForward());
 
-        if (doBraking)
+        bool doFullBrake = Input.GetKey("space");
+        _doSkidmarking = _carIsNotOnSand && doFullBrake && _currentSpeedKMH > 20.0f;
+        SetBrakeSound(_doSkidmarking);
+        SetSkidmarking(_doSkidmarking);
+        
+        if (doBraking || doFullBrake)
         { 
-            wheelColliderFL.brakeTorque = 5000;
-            wheelColliderFR.brakeTorque = 5000;
-            wheelColliderRL.brakeTorque = 5000;
-            wheelColliderRR.brakeTorque = 5000;
-            wheelColliderFL.motorTorque = 0;
-            wheelColliderFR.motorTorque = 0;
+            float brakeTorque = doFullBrake ? fullBrakeTorque : maxBrakeTorque;
+            SetBreakTorque(brakeTorque);
+            SetMotorTorque(0);
         } 
         else
         { 
-            wheelColliderFL.brakeTorque = 0;
-            wheelColliderFR.brakeTorque = 0;
-            wheelColliderRL.brakeTorque = 0;
-            wheelColliderRR.brakeTorque = 0;
+            SetBreakTorque(0);
             wheelColliderFL.motorTorque = maxTorque * Input.GetAxis("Vertical");
             wheelColliderFR.motorTorque = wheelColliderFL.motorTorque;
         }
+    }
+
+    private void SetBreakTorque(float amount)
+    {
+        wheelColliderFL.brakeTorque = amount;
+        wheelColliderFR.brakeTorque = amount;
+        wheelColliderRL.brakeTorque = amount;
+        wheelColliderRR.brakeTorque = amount;
+    }
+    
+    private void SetBrakeSound(bool doBrakeSound)
+    {
+        if (doBrakeSound)
+        { _brakeAudioSource.volume = _currentSpeedKMH/100.0f;
+            _brakeAudioSource.Play();
+        } else
+            _brakeAudioSource.Stop();
+    }
+    
+    // Turns skidmarking on or off on all wheels
+    void SetSkidmarking(bool doSkidmarking)
+    { foreach(var wheel in wheelBehaviours)
+        wheel.DoSkidmarking(doSkidmarking);
     }
     
     private void ChangeDustParticleDirection()
