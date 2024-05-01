@@ -211,7 +211,7 @@ public class CarBehaviour : MonoBehaviour
         WheelHit hitFL = GetGroundInfos(ref wheelColliderFL, ref _groundTagFL, ref _groundTextureFL);
         WheelHit hitFR = GetGroundInfos(ref wheelColliderFR, ref _groundTagFR, ref _groundTextureFR);
         _carIsOnDrySand = _groundTagFL.CompareTo("Terrain")==0 && _groundTextureFL==0;
-        _carIsNotOnSand = !(_groundTagFL.CompareTo("Terrain")==0 && _groundTextureFL<=1);
+        _carIsNotOnSand = !(_groundTagFL.CompareTo("Terrain")==0 && _groundTextureFL is 0 or 2);
         // Debug.Log($"Buggy is on Sand texture: {_carIsOnDrySand}");
         // Debug.Log($"Buggy left tire on texture: {_groundTextureFL}");
 
